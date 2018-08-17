@@ -885,3 +885,9 @@ option(INSTALL_VENDORED_LIBUNBOUND "Install libunbound binary built from source 
 
 
 CHECK_C_COMPILER_FLAG(-std=c11 HAVE_C11)
+
+if (ANDROID OR IOS)
+  if( BUILD_GUI_DEPS )
+    add_definitions(-DFORCE_USE_HEAP=1)
+  endif()
+endif()
