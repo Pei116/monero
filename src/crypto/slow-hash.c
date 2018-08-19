@@ -1124,12 +1124,12 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int variant, int 
         hash_extra_blake, hash_extra_groestl, hash_extra_jh, hash_extra_skein
     };
 
-#ifndef FORCE_USE_HEAP
-    uint8_t long_state[MEMORY];
-#else
+// #ifndef FORCE_USE_HEAP
+//     uint8_t long_state[MEMORY];
+// #else
     uint8_t *long_state = NULL;
     long_state = (uint8_t *)malloc(MEMORY);
-#endif
+// #endif
 
     if (prehashed) {
         memcpy(&state.hs, data, length);
