@@ -1133,12 +1133,10 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int variant, int 
 #endif
 
     if (prehashed) {
-        __android_log_print(ANDROID_LOG_ERROR, "android_debug", "memcpy 1");
         memcpy(&state.hs, data, length);
     } else {
         hash_process(&state.hs, data, length);
     }
-    __android_log_print(ANDROID_LOG_ERROR, "android_debug", "memcpy 2");
     memcpy(text, state.init, INIT_SIZE_BYTE);
 
     VARIANT1_INIT64();
@@ -1147,13 +1145,11 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int variant, int 
     oaes_key_import_data(aes_ctx, state.hs.b, AES_KEY_SIZE);
 
     // use aligned data
-    __android_log_print(ANDROID_LOG_ERROR, "android_debug", "memcpy 3");
     memcpy(expandedKey, aes_ctx->key->exp_data, aes_ctx->key->exp_data_len);
     for(i = 0; i < MEMORY / INIT_SIZE_BYTE; i++)
     {
         for(j = 0; j < INIT_SIZE_BLK; j++)
             aesb_pseudo_round(&text[AES_BLOCK_SIZE * j], &text[AES_BLOCK_SIZE * j], expandedKey);
-    __android_log_print(ANDROID_LOG_ERROR, "android_debug", "memcpy 4");
         memcpy(&long_state[i * INIT_SIZE_BYTE], text, INIT_SIZE_BYTE);
     }
 
@@ -1187,10 +1183,8 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int variant, int 
       VARIANT1_2(U64(p) + 1);
     }
 
-    __android_log_print(ANDROID_LOG_ERROR, "android_debug", "memcpy 5");
     memcpy(text, state.init, INIT_SIZE_BYTE);
     oaes_key_import_data(aes_ctx, &state.hs.b[32], AES_KEY_SIZE);
-    __android_log_print(ANDROID_LOG_ERROR, "android_debug", "memcpy 6");
     memcpy(expandedKey, aes_ctx->key->exp_data, aes_ctx->key->exp_data_len);
     for(i = 0; i < MEMORY / INIT_SIZE_BYTE; i++)
     {
@@ -1202,7 +1196,6 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int variant, int 
     }
 
     oaes_free((OAES_CTX **) &aes_ctx);
-    __android_log_print(ANDROID_LOG_ERROR, "android_debug", "memcpy 7");
     memcpy(state.init, text, INIT_SIZE_BYTE);
     hash_permutation(&state.hs);
     extra_hashes[state.hs.b[0] & 3](&state, 200, hash);
@@ -1302,7 +1295,12 @@ union cn_slow_hash_state {
 #pragma pack(pop)
 
 void cn_slow_hash(const void *data, size_t length, char *hash, int variant, int prehashed) {
+#ifndef FORCE_USE_HEAP
   uint8_t long_state[MEMORY];
+#else
+  uint8_t *long_state = NULL;
+  long_state = (uint8_t *)malloc(MEMORY);
+#endif
   union cn_slow_hash_state state;
   uint8_t text[INIT_SIZE_BYTE];
   uint8_t a[AES_BLOCK_SIZE];
@@ -1378,6 +1376,9 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int variant, int 
   /*memcpy(hash, &state, 32);*/
   extra_hashes[state.hs.b[0] & 3](&state, 200, hash);
   oaes_free((OAES_CTX **) &aes_ctx);
+#ifdef FORCE_USE_HEAP
+  free(long_state);
+#endif
 }
 
 #endif
