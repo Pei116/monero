@@ -34,7 +34,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <android/log.h>
 
 #include "common/int-util.h"
 #include "hash-ops.h"
