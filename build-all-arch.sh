@@ -1,6 +1,5 @@
 #!/bin/bash
 #
-#  -D BOOST_ROOT=/opt/android/boost_1_58_0
 
 set -e
 
@@ -17,7 +16,7 @@ for arch in ${archs[@]}; do
         "arm")
 			target_host=arm-linux-androideabi
 			ldflags="-march=armv7-a -Wl,--fix-cortex-a8"
-			xarch=armv7-a
+			xarch="armv7-a"
 			sixtyfour=OFF
 			;;
         "arm64")
@@ -44,7 +43,7 @@ for arch in ${archs[@]}; do
 	mkdir -p $OUTPUT_DIR
 	cd $OUTPUT_DIR
 
-	PATH=/opt/android/tool/$arch/$target_host/bin:/opt/android/tool/$arch/bin:$PATH CC=clang CXX=clang++ cmake -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="$xarch" -D STATIC=ON -D BUILD_64=$sixtyfour -D CMAKE_BUILD_TYPE=$build_type -D ANDROID=true -D BUILD_TAG="android" -D BOOST_ROOT=/opt/android/build/boost/$arch -D BOOST_LIBRARYDIR=/opt/android/build/boost/$arch/lib -D OPENSSL_ROOT_DIR=/opt/android/build/openssl/$arch -D OPENSSL_CRYPTO_LIBRARY=/opt/android/build/openssl/$arch/lib/libcrypto.so -D OPENSSL_SSL_LIBRARY=/opt/android/build/openssl/$arch/lib/libssl.so -D CMAKE_POSITION_INDEPENDENT_CODE:BOOL=true -D MONERUJO_PCSC=ON ../..
+	PATH=/opt/android/tool/$arch/$target_host/bin:/opt/android/tool/$arch/bin:$PATH CC=clang CXX=clang++ cmake -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="$xarch" -D STATIC=ON -D BUILD_64=$sixtyfour -D CMAKE_BUILD_TYPE=$build_type -D ANDROID=true -D BUILD_TAG="android" -D BOOST_ROOT=/opt/android/build/boost/$arch -D BOOST_LIBRARYDIR=/opt/android/build/boost/$arch/lib -D OPENSSL_ROOT_DIR=/opt/android/build/openssl/$arch -D CMAKE_SYSROOT=/opt/android/tool/$arch/sysroot -D OPENSSL_CRYPTO_LIBRARY=/opt/android/build/openssl/$arch/lib/libcrypto.so -D OPENSSL_SSL_LIBRARY=/opt/android/build/openssl/$arch/lib/libssl.so -D CMAKE_POSITION_INDEPENDENT_CODE:BOOL=true -D MONERUJO_PCSC=ON ../..
 	make -j4 wallet_api
 	find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
 
@@ -61,4 +60,3 @@ for arch in ${archs[@]}; do
 	cd $base_dir
 done
 exit 0
-
